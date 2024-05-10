@@ -1,1 +1,0 @@
-# lamdakarthi1018
