@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  post_build:
+    commands:
+      - ls
+      - pwd
+      - zip -r another-function.zip .
+      - echo "Updating second Lambda function"
+      - aws lambda update-function-code --function-name AnotherLambda --zip-file fileb://another-function.zip
+artifacts:
+  files:
+    - another-function.zip
+  discard-paths: yes
