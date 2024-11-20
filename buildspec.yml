@@ -1,13 +1,29 @@
 version: 0.2
+env:
+  variables:
+    STAGING_FUNCTION_NAME: "lambdacicd"
+    PRODUCTION_FUNCTION_NAME: "AnotherLambda"
 phases:
+  pre_build:
+    commands:
+      - echo "Preparing for deployment..."
+  build:
+    commands:
+      - echo "Packaging the Lambda function..."
+      - zip -r function.zip .
   post_build:
     commands:
-      - ls
-      - pwd
-      - zip -r another-function.zip .
-      - echo "Updating second Lambda function"
-      - aws lambda update-function-code --function-name AnotherLambda --zip-file fileb://another-function.zip
+      - if [ "$DEPLOY_ENV" = "staging" ]; then
+          echo "Deploying to staging environment...";
+          aws lambda update-function-code --function-name $STAGING_FUNCTION_NAME --zip-file fileb://function.zip;
+        elif [ "$DEPLOY_ENV" = "production" ]; then
+          echo "Deploying to production environment...";
+          aws lambda update-function-code --function-name $PRODUCTION_FUNCTION_NAME --zip-file fileb://function.zip;
+        else
+          echo "Unknown DEPLOY_ENV. Exiting...";
+          exit 1;
+        fi
 artifacts:
   files:
-    - another-function.zip
+    - function.zip
   discard-paths: yes
